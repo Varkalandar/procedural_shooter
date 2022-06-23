@@ -55,6 +55,11 @@ function love.update(dt)
     local ships = shipyard.makeShips(count)
     swarm.addShips(ships)
   end
+
+  if love.keyboard.isDown("f8") then    
+    love.graphics.captureScreenshot("screenshot.png")
+    print("Screenshot saved.")
+  end
 end
 
 
