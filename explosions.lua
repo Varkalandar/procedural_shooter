@@ -39,11 +39,11 @@ local function makeStarExplosion(hitpoints)
   local y = {}
       
   local rad = 6
-  local origins = 64
+  local origins = 96
       
   for  i=0, origins-1 do
     local angle = love.math.random() * math.pi * 2
-    local distance = love.math.random() * rad    
+    local distance = 1 + love.math.random() * rad    
     x[i] = math.cos(angle) * distance
     y[i] = math.sin(angle) * distance
   end
@@ -51,9 +51,9 @@ local function makeStarExplosion(hitpoints)
   local colors = {}
       
   colors[0] = makeColor(0.3, 0.3)
-  colors[1] = makeColorVariant(colors[0], 0.2)
-  colors[2] = makeColorVariant(colors[0], 0.15)
-  colors[3] = makeColorVariant(colors[0], 0.1)
+  colors[1] = makeColorVariant(colors[0], 0.35)
+  colors[2] = makeColorVariant(colors[0], 0.25)
+  colors[3] = makeColorVariant(colors[0], 0.15)
       
   for i=0, 9 do
     -- ship canvas is ship (first frame) then 10 explosion frames
@@ -65,7 +65,7 @@ local function makeStarExplosion(hitpoints)
     love.graphics.rectangle('fill', xoff, 0, 256, 256)
     love.graphics.setBlendMode("add")
 
-    local distance = 4 + i*0.5 + hitpoints * 0.15
+    local distance = 4 + i*0.4 + hitpoints * 0.15
     local starshine = 0.1 + love.math.random() * 0.5
       
     -- 4 color shades

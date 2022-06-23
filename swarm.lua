@@ -116,7 +116,9 @@ local function drawGroup(group)
         v.sound:play()
       end
       
-      if v.hitpoints > -20 then
+      local explosionTimeFactor = 1
+      
+      if v.hitpoints > -20 * explosionTimeFactor then
       
         --[[
         -- fake explosion
@@ -139,7 +141,7 @@ local function drawGroup(group)
         
         local mode, alphamode = love.graphics.getBlendMode();   
         love.graphics.setBlendMode("add")
-        local frame = 1 + math.floor(v.hitpoints * -0.5)
+        local frame = 1 + math.floor(v.hitpoints * -0.5/explosionTimeFactor)
         v.quad:setViewport(frame * 256, 0, 256, 256)
         love.graphics.draw(v.canvas, v.quad, math.floor(v.x) -128, math.floor(v.y) - 128)
         love.graphics.setBlendMode(mode, alphamode)
