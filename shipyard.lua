@@ -42,6 +42,7 @@ local function makeDendrilEnemy(canvas)
     b = love.math.random() * 0.5 + 0.4,
   }
 
+  local count = 0
   repeat
 
     love.graphics.setColor(color.r, color.g, color.b, 1)
@@ -61,36 +62,41 @@ local function makeDendrilEnemy(canvas)
       love.graphics.setColor(color.r*1.4, color.g*1.4, color.b*1.4, 0.7)
       love.graphics.rectangle('fill', math.floor(xp-2), math.floor(yp-2), 5, 5);
       love.graphics.rectangle('fill', math.floor(xp-2), math.floor(128-yp-2), 5, 5);
+      hitpoints = hitpoints + 5
     elseif love.math.random() < 0.006 then
       -- highlights
       love.graphics.setColor(color.r*1.4, color.g*1.4, color.b*1.4, 1)
       love.graphics.rectangle('fill', math.floor(xp), math.floor(yp), 1, 1);
       love.graphics.rectangle('fill', math.floor(xp), math.floor(128-yp), 1, 1);
+      hitpoints = hitpoints + 1
     elseif love.math.random() < 0.2 then
       -- shadows
       love.graphics.setColor(0, 0, 0, 0.1)
       love.graphics.rectangle('fill', math.floor(xp-1), math.floor(yp-1), 3, 3);
       love.graphics.rectangle('fill', math.floor(xp-1), math.floor(128-yp-1), 3, 3);
+      hitpoints = hitpoints + 3
     elseif love.math.random() < 0.05 then
       -- double shadows
       love.graphics.setColor(0, 0, 0, 0.8)
       love.graphics.setColor(color.r*0.5, color.g*0.5, color.b*0.5, 0.5)
       love.graphics.rectangle('fill', math.floor(xp), math.floor(yp), 1, 1);
       love.graphics.rectangle('fill', math.floor(xp), math.floor(128-yp), 1, 1);
+      hitpoints = hitpoints + 1
     end
     
     xp = xp + (love.math.random() - 0.5) * compact
     yp = yp + (love.math.random() - 0.5) * compact * 0.5
     
     -- print("xp=" .. xp .. " yp=" .. yp)
-      
-    hitpoints = hitpoints + 1
-  until xp < 1 or yp < 1 or xp > 126 or yp > 126 or hitpoints > 4000
+    count = count + 1  
+  until xp < 1 or yp < 1 or xp > 126 or yp > 126 or count > 3000
 
   -- love.graphics.setColor(1, 0, 0, 1)
   -- love.graphics.rectangle('line', 0, 0, 128, 128)
   
   love.graphics.setCanvas()
+  
+  return math.floor(hitpoints * compact * 0.01) - 10
 end
 
 
@@ -147,7 +153,6 @@ local function makeWingedEnemy(canvas)
       hline(xoff + x, bot, 1)
     end
 
-
     -- decorations
     if love.math.random() < 0.3 and left + 8 <= right then
       local wid = 4 + math.floor(love.math.random() * 3)
@@ -197,13 +202,15 @@ local function makeWingedEnemy(canvas)
   -- love.graphics.rectangle('line', 0, 0, 128, 128)
 
   love.graphics.setCanvas()
+
+  return math.floor(hitpoints * 0.025) - 4
 end
 
 
 local function makeShellEnemy(canvas)
-  local baseRadius = 35;
+  local baseRadius = 35
 
-  local hitpoints = 1;
+  local hitpoints = 1
 
   local colorCenter = {}
   local colorBorder = {}
@@ -281,12 +288,6 @@ local function makeShellEnemy(canvas)
                 
       hline(64+xpos, 64+ypos, 1)
       hline(64+xpos, 64-ypos, 1)
-
-      -- if xpos < minX then minX=xpos end
-      -- if xpos > maxX then maxX=xpos end
-      -- if math.floor(baseRadius) - ypos < minY then minY = math.floor(baseRadius) - ypos end
-      -- if math.floor(baseRadius) + ypos > maxY then maxY = math.floor(baseRadius) + ypos end
-                
     end
     
     radius = radius + (love.math.random() - 0.5) * tussleFactor;
@@ -313,28 +314,44 @@ local function makeShellEnemy(canvas)
   -- love.graphics.rectangle('line', 0, 0, 128, 128)
 
   love.graphics.setCanvas()
+
+  return math.floor(hitpoints * 0.006) - 8
 end
 
 
 local function makeNewShipType()
 
-  print("Making ship #" .. shipyard.next+1)
+  -- print("Making ship #" .. shipyard.next+1)
   
   local canvas = shipyard.canvases[(shipyard.next + 1) % 64]
   local r = love.math.random()
-  local hitpoints = 1 + math.floor(love.math.random() * 7) -- todo!
+  local hitpoints
+  
+  local t0 = love.timer.getTime( )
   
   if r < 0.33 then
-    makeShellEnemy(canvas)
+    hitpoints = makeShellEnemy(canvas)
+    -- print("Shell hitpoints=" .. hitpoints)
   elseif r < 0.66 then
-    makeWingedEnemy(canvas)
+    hitpoints = makeWingedEnemy(canvas)
+    -- print("Wing hitpoints=" .. hitpoints)
   else
-    makeDendrilEnemy(canvas)
+    hitpoints = makeDendrilEnemy(canvas)
+    -- print("Dendril hitpoints=" .. hitpoints)
   end
 
+  local t1 = love.timer.getTime( )
+
+  -- sanity - no self-destruct ships
+  hitpoints = math.max(1, hitpoints)
+  
   love.graphics.setCanvas(canvas)
   explosions.makeStarExplosion(hitpoints)
   love.graphics.setCanvas()
+  
+  local t2 = love.timer.getTime( )
+
+  -- print("ship time=" .. (t1-t0) .. " explosions=" .. (t2-t1))
   
   -- advance to next shape
   shipyard.next = shipyard.next +1
@@ -344,7 +361,8 @@ end
 
 
 local function makeExplosionSound(hitpoints)
-  local frequency = 128
+  --local frequency = 128
+  local frequency = 64
         
   if hitpoints == 1 then
     frequency = frequency * 2
@@ -367,12 +385,12 @@ local function makeExplosionSound(hitpoints)
   local sound
   
   if love.math.random() < 0.6 then
-    local harmonics = 2 + math.floor(love.math.random()*2);
-    local viba = 50 + math.floor(love.math.random()*30);
+    local harmonics = 3 + math.floor(love.math.random()*2);
+    local viba = 30 + math.floor(love.math.random()*30);
     local noise = 0.50 + love.math.random()*0.30
-    local nfd = 24 + math.floor(love.math.random()*20);
+    local nfd = 28 + math.floor(love.math.random()*20);
 
-    sound = sounds.make(500 + hitpoints*16, -- duration
+    sound = sounds.make(700 + hitpoints*16, -- duration
                                     sounds.pluckEnvelope, -- new PluckWave(0.6),
                                     frequency,
                                     0, -- shift
@@ -383,14 +401,14 @@ local function makeExplosionSound(hitpoints)
                                     nfd  -- noiseFrequencyDivision
                                     )
   else
-    local harmonics = 2 + math.floor(love.math.random()*2);
-    local vibrato = 3 + math.floor(love.math.random()*2);
-    local viba = 70 + math.floor(love.math.random()*20);
+    local harmonics = 3 + math.floor(love.math.random()*2);
+    local vibrato = 30 + math.floor(love.math.random()*20);
+    local viba = 60 + math.floor(love.math.random()*20);
     local noise = 0.4 + love.math.random()*0.25
      -- int nfd = 4 + math.floor(love.math.random()*4);
-    local nfd = 24 + math.floor(love.math.random()*20);
+    local nfd = 28 + math.floor(love.math.random()*20);
 
-    sound = sounds.make(400 + hitpoints*16, -- duration
+    sound = sounds.make(500 + hitpoints*16, -- duration
                                    -- new EarlyWave(0.45),
                                     sounds.pluckEnvelope, -- new PluckWave(0.8),
                                     frequency,
@@ -403,7 +421,7 @@ local function makeExplosionSound(hitpoints)
                                     )
   end
   
-  sound:setVolume(0.5)
+  sound:setVolume(0.3)
   
   return sound
 end
@@ -444,17 +462,22 @@ local function makeShips(count)
   -- default, move from bottom to top
   local ystart = 600 + 128
   local xstart = 900 + love.math.random() * 200
-  local xspace = love.math.random() * 120 - 60
-  local yspace = 50
-  local dx = love.math.random() * 4 - 3.7
+  local xspace = (love.math.random() - 0.5) * (60 + hitpoints * 2)
+  local yspace = 35 + hitpoints * 2
+  local dx = love.math.random() * 3 - 2.3
   local dy = -1 - love.math.random()
   
   -- adjust 50% to move top to bottom
   if  love.math.random() < 0.5 then
     ystart = -128
-    yspace = -50
-    dy = 1 + love.math.random()
+    yspace = -yspace
+    dy = -dy
   end
+  
+  local speed = (20 - math.min(hitpoints, 19)) * 0.08
+  
+  dx = dx * speed 
+  dy = dy * speed 
   
   local ships = {}
   

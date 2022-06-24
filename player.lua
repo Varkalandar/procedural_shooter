@@ -16,10 +16,15 @@ local function makeShip()
   love.graphics.setBlendMode("alpha")
   local xoff = 64
   local yoff = 64
-  
-  love.graphics.setColor(0, 0, 1, 0.33)
+
+  -- shield effect
+  love.graphics.setColor(0, 0, 1, 0.5)
   fillOval(xoff-2, yoff, 40)
+  love.graphics.setBlendMode("subtract")
+  love.graphics.setColor(0, 0, 0.25, 1)
+  fillOval(xoff-2, yoff, 38)
   
+  love.graphics.setBlendMode("alpha")
   for y=0, 15 do
     local dim = y / 30.0 + 0.3
     love.graphics.setColor(1*dim, 0.5*dim, 0*dim, 1)
@@ -42,7 +47,7 @@ local function makeShip()
                 24  -- noiseFrequencyDivision
                 )
                 
-  player.gunsound:setVolume(0.02)
+  player.gunsound:setVolume(0.025)
 end
 
 
@@ -66,13 +71,16 @@ local function checkHits()
     local group = player.swarm.groups[i]	
     if group then
       for k, v in pairs(group) do
-        local hit = player.tracer:checkHits(v.x, v.y)
-        if hit and v.hitpoints >= 0 then
-          -- print("Ship was hit")          
-          v.hitpoints = v.hitpoints - 1
+        if v.hitpoints > 0 then
+          local hit = player.tracer:checkHits(v.x, v.y)
+          if hit then
+            -- print("Ship was hit")          
+            local bulletPower = 3
+            v.hitpoints = math.max(0, v.hitpoints - bulletPower)
+          end
         end
       end
-	  end
+    end
   end
 end
 

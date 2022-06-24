@@ -10,11 +10,11 @@ local swarm = {}
 
 
 local function load(width, height)
-	swarm.groups = {}  -- ship groups
-	swarm.new = 0 -- highest group index
-	swarm.old = 0 -- lowest group index
-	swarm.width = width
-	swarm.height = height
+  swarm.groups = {}  -- ship groups
+  swarm.new = 0 -- highest group index
+  swarm.old = 0 -- lowest group index
+  swarm.width = width
+  swarm.height = height
   swarm.tracer = bullets.makeNewTracer()
   swarm.tracer:load(width, height)
   
@@ -24,7 +24,7 @@ end
 local function isObsolete(group)
   for k, v in pairs(group) do
     if v.x < -1000 or v.x > swarm.width + 1000 or
-	     v.y < -1000 or v.y > swarm.height +1000 then
+       v.y < -1000 or v.y > swarm.height +1000 then
        return true
     end
   end
@@ -35,35 +35,35 @@ end
 
 local function purgeObsoleteGroups()
   local group = swarm.groups[swarm.old]
-	
+  
   if group == nil then
     if swarm.old < swarm.new then
       print("Passing ship group #" .. swarm.old)
       swarm.old = swarm.old + 1
     end
-	elseif isObsolete(group) then
-    print("Purging ship group #" .. swarm.old)
+  elseif isObsolete(group) then
+    -- print("Purging ship group #" .. swarm.old)
     swarm.groups[swarm.old] = nil
     swarm.old = swarm.old + 1
-	end
-end
-
-
-local function moveGroup(group)
-  for k, v in pairs(group) do
-    v.x = v.x + v.dx
-    v.y = v.y + v.dy
   end
 end
 
 
-local function moveGroups()
+local function moveGroup(group, dt)
+  for k, v in pairs(group) do
+    v.x = v.x + v.dx * dt * 60
+    v.y = v.y + v.dy * dt * 60
+  end
+end
+
+
+local function moveGroups(dt)
   for i=swarm.old, swarm.new do
     local group = swarm.groups[i]
-	
+  
     if group then
-      moveGroup(group)	
-	  end
+      moveGroup(group, dt)	
+    end
   end
 end
 
@@ -82,7 +82,7 @@ local function update(dt)
   swarm.tracer:update(dt)
   
   purgeObsoleteGroups()
-  moveGroups()
+  moveGroups(dt)
 
   for k, v in pairs(swarm.groups) do
     v[1].time = v[1].time + dt
@@ -108,6 +108,10 @@ local function drawGroup(group)
       v.quad:setViewport(0, 0, 128, 128)
       love.graphics.draw(v.canvas, v.quad, math.floor(v.x) - 64, math.floor(v.y) - 64)
 
+      -- show hitpoints?
+      -- love.graphics.print(v.hitpoints, math.floor(v.x) - 10, math.floor(v.y) - 20)  
+
+      
       -- love.graphics.setColor(0, 0, 1, 1)
       -- love.graphics.rectangle('fill', math.floor(v.x) - 3, math.floor(v.y) - 3, 7, 7)
     else
@@ -116,7 +120,7 @@ local function drawGroup(group)
         v.sound:play()
       end
       
-      local explosionTimeFactor = 1
+      local explosionTimeFactor = 1.5
       
       if v.hitpoints > -20 * explosionTimeFactor then
       
@@ -159,7 +163,7 @@ local function draw()
     local group = swarm.groups[i]	
     if group then
       drawGroup(group)	
-	  end
+    end
   end
 
   swarm.tracer:draw()
@@ -167,13 +171,13 @@ end
 
 
 local function addShips(ships)
-	print("Adding ships in slot=" .. swarm.new)
+  -- print("Adding ships in slot=" .. swarm.new)
     
-    -- print(dump(ships))
+  -- print(dump(ships))
     
   ships[1].time = 0
-	swarm.groups[swarm.new] = ships
-	swarm.new = swarm.new + 1
+  swarm.groups[swarm.new] = ships
+  swarm.new = swarm.new + 1
 end
 
 

@@ -35,18 +35,18 @@ local function purgeObsolete(tracer)
 end
 
 
-local function move(tracer)
+local function move(tracer, dt)
   for i=0, tracer.top-1 do
     local b = tracer.list[i]	
-    b.x = b.x + b.dx
-    b.y = b.y + b.dy
+    b.x = b.x + b.dx * 60 * dt
+    b.y = b.y + b.dy * 60 * dt
   end
 end
 
 
 local function update(tracer, dt)
   purgeObsolete(tracer)
-  move(tracer)
+  move(tracer, dt)
 end
 
 
@@ -75,6 +75,7 @@ local function checkHits(tracer, x, y)
       local d = dx*dx + dy*dy
       
       if d < 800 then
+        bullet.active = false
         return true
       end
     end

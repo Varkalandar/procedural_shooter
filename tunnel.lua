@@ -38,6 +38,7 @@ local function load(width, height)
   -- scroll speed, pixels per second
   tunnel.speed = 60
   tunnel.right = width - 1
+  tunnel.depth = -3000
   
   love.graphics.setCanvas(canvas)
   love.graphics.clear()
@@ -49,9 +50,9 @@ local function load(width, height)
 
   -- color vector stuff
 
-  tunnel.red = 0.2 
-  tunnel.green = 0.2 
-  tunnel.blue = 0.2
+  tunnel.red = 0.20
+  tunnel.green = 0.20 
+  tunnel.blue = 0.20
 
   tunnel.rv = colorGradient()
   tunnel.gv = colorGradient()
@@ -69,7 +70,9 @@ end
 
 local function update(dt)
   local r1 = math.floor(tunnel.right)
-  tunnel.right = tunnel.right + dt * tunnel.speed
+  local vd =  dt * tunnel.speed
+  tunnel.right = tunnel.right + vd
+  tunnel.depth = tunnel.depth + vd
   local r2 = math.floor(tunnel.right)
 
 
@@ -124,19 +127,19 @@ local function update(dt)
     
     -- color vectors, check out of bounds stuff    
     local red = tunnel.red + tunnel.rv
-    while red < 0.1 or red > 0.3 do
+    while red < 0.15 or red > 0.25 do
       tunnel.rv = colorGradient()
       red = tunnel.red + tunnel.rv
     end
     
     local green = tunnel.green + tunnel.gv
-    while green < 0.1 or green > 0.3 do
+    while green < 0.15 or green > 0.25 do
       tunnel.gv = colorGradient()
       green = tunnel.green + tunnel.gv
     end
     
     local blue = tunnel.blue + tunnel.bv
-    while blue < 0.1 or blue > 0.3 do
+    while blue < 0.15 or blue > 0.25 do
       tunnel.bv = colorGradient()
       blue = tunnel.blue + tunnel.bv
     end
@@ -145,14 +148,14 @@ local function update(dt)
     -- now, draw
     
     love.graphics.setCanvas(tunnel.canvas)  
-    love.graphics.setColor(red*0.8, green*0.9, blue*1.0, 1)
+    love.graphics.setColor(red*0.6, green*0.3, blue*1.0, 1)
 
     -- walls
     vline(x, 0, top-1)
     vline(x, bottom+1, tunnel.height-bottom)
     
     -- border
-    love.graphics.setColor(red*1.5, green*1.5, blue*1.5, 0.5)
+    love.graphics.setColor(red*0.9, green*0.45, blue*1.5, 0.5)
     vline(x, top-3, 4)
     vline(x, bottom, 3)
 
@@ -237,7 +240,7 @@ local function draw()
     love.graphics.draw(tunnel.canvas, tunnel.quad, 0, 0)
   end
   
-  love.graphics.print(math.floor(l * 0.1) .. " Meters", 10, 10)  
+  love.graphics.print(math.floor(tunnel.depth * 0.15) .. " Meters", 10, 10)  
 end
 
 

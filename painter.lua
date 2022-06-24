@@ -55,6 +55,11 @@ function fillOval(xc, yc, radius)
 end
 
 
+function fastOval(x, y, radius)
+  love.graphics.ellipse("fill", x, y, radius, radius, 24)
+end
+
+
 function makeColor(base, range)
   return
   {

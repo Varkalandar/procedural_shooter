@@ -45,7 +45,7 @@ local function make(length,  -- seconds?
                              noiseStep)
   local samples = math.floor(SAMPLE_RATE * length / 1000)
 
-  print("samples=" .. samples)
+  -- print("samples=" .. samples)
   
   local soundData = love.sound.newSoundData(samples, rate, 16, 1)
   
