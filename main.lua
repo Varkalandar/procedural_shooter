@@ -32,7 +32,6 @@ function love.load()
   end
   
   love.window.setTitle("Harmonic Shooter Alpha v0.01")
-
   
   tunnel.load(width, height)
   swarm.load(width, height, player)
@@ -53,7 +52,9 @@ function love.update(dt)
   swarm.update(dt)
   player.update(dt)
   
-  if love.math.random() < 0.01 then
+  if love.math.random() < 0.01 and
+     shipyard.needsSound == false and
+     shipyard.needsExplosion == false then
     local count = math.floor(1 + love.math.random() * 8) 
     local ships = shipyard.makeShips(count)
     swarm.addShips(ships)

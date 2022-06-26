@@ -344,14 +344,17 @@ local function makeNewShipType()
 
   -- sanity - no self-destruct ships
   hitpoints = math.max(1, hitpoints)
-  
-  love.graphics.setCanvas(canvas)
-  explosions.makeStarExplosion(hitpoints)
-  love.graphics.setCanvas()
-  
-  local t2 = love.timer.getTime( )
 
-  -- print("ship time=" .. (t1-t0) .. " explosions=" .. (t2-t1))
+  print("ship time=" .. (t1-t0))
+
+  shipyard.hitpoints[(shipyard.next + 1) % 64] = hitpoints
+    
+  -- to spread CPU load over several frames,
+  -- explosion graphics and sounds are generated
+  -- during the next two updates, and not right here
+  
+  shipyard.needsExplosion = true
+  shipyard.needsSound = true
   
   -- advance to next shape
   shipyard.next = shipyard.next +1
@@ -428,11 +431,14 @@ end
 
 
 local function load(width, height)
+  -- ringbuffers for ship type data
   shipyard.canvases = {}
   shipyard.quads = {}
+  shipyard.sounds = {}
+  shipyard.hitpoints = {}
   
   for i=0,63 do	
-    print("Making ship #" .. i+1)
+    print("Making ship data #" .. i+1)
 
     -- ship canvas is ship (first frame) then 10 explosion frames
     local canvas = love.graphics.newCanvas(12*256, 256)
@@ -441,12 +447,46 @@ local function load(width, height)
     shipyard.quads[i] = quad    
   end
 
+  shipyard.needsSound = false
+  shipyard.needsExplosion = false
   shipyard.next = -1
   makeNewShipType()
 end
 
 
 local function update(dt)
+  -- finish the work on the ship type in two steps
+  -- first make the explosion graphics,
+  -- then the explosion sound
+  
+  if shipyard.needsExplosion then
+    local t1 = love.timer.getTime( )
+
+    local index = (shipyard.next) % 64
+    local canvas = shipyard.canvases[index]
+    local hitpoints = shipyard.hitpoints[index]
+    love.graphics.setCanvas(canvas)
+    explosions.makeStarExplosion(hitpoints)
+    love.graphics.setCanvas()
+
+    shipyard.needsExplosion = false
+    local t2 = love.timer.getTime( )
+    
+    print("Explosion time=" .. t2-t1)
+    
+  elseif shipyard.needsSound then
+    local t1 = love.timer.getTime( )
+  
+    local index = (shipyard.next) % 64
+    local hitpoints = shipyard.hitpoints[index]
+    shipyard.sounds[index] =
+      makeExplosionSound(hitpoints)
+
+    shipyard.needsSound = false
+    local t2 = love.timer.getTime( )
+    
+    print("Sound=" .. index .. " time=" .. t2-t1)
+  end
 end
 
 
@@ -454,12 +494,15 @@ local function makeShips(count)
 
   -- we keep one of these ahead,
   -- cause canvas takes a while to be ready?  
-  local hitpoints = makeNewShipType() 
-  
-  local sound = makeExplosionSound(hitpoints)
-  
+  makeNewShipType() 
   
   -- default, move from bottom to top
+  
+  local index = (shipyard.next-1) % 64
+  
+  print("Using ship data " .. index)
+  
+  local hitpoints = shipyard.hitpoints[index]
   local ystart = 600 + 128
   local xstart = 900 + love.math.random() * 200
   local xspace = (love.math.random() - 0.5) * (60 + hitpoints * 2)
@@ -489,10 +532,10 @@ local function makeShips(count)
     -- ship direction
     ship.dx = dx
     ship.dy = dy
-    ship.canvas = shipyard.canvases[shipyard.next % 64]
-    ship.quad = shipyard.quads[shipyard.next % 64]
+    ship.canvas = shipyard.canvases[index]
+    ship.quad = shipyard.quads[index]
     ship.hitpoints = hitpoints
-    ship.sound = sound
+    ship.sound = shipyard.sounds[index]
     
     ships[i] = ship
     

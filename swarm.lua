@@ -109,7 +109,7 @@ local function drawGroup(group)
       love.graphics.draw(v.canvas, v.quad, math.floor(v.x) - 64, math.floor(v.y) - 64)
 
       -- show hitpoints?
-      -- love.graphics.print(v.hitpoints, math.floor(v.x) - 10, math.floor(v.y) - 20)  
+      love.graphics.print(v.hitpoints, math.floor(v.x) - 10, math.floor(v.y) - 20)  
 
       
       -- love.graphics.setColor(0, 0, 1, 1)

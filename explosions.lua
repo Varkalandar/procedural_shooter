@@ -46,7 +46,7 @@ local function makeStarExplosion(hitpoints)
   local mode, alphamode = love.graphics.getBlendMode();   
       
   local rad = 3 + hitpoints * 0.2
-  local origins = 16 + math.floor(0.5 * hitpoints) * 4
+  local origins = 24 + math.floor(0.75 * hitpoints) * 4
   local compact = 0.1 + math.random() * 0.1 
   
   -- print("origins=" .. origins)
@@ -89,9 +89,11 @@ local function makeStarExplosion(hitpoints)
         tc.g = color.g*dim
         tc.b = color.g*dim
         
+        local size = math.floor(1 + hitpoints * i * compact + love.math.random()*4)
+        
         makeStar(xoff + dx, 
                        128 + dy, 
-                       1 + hitpoints * i * compact + love.math.random()*4,
+                       math.min(size, 4),
                        tc)
       end
     end
@@ -103,7 +105,7 @@ local function makeStarExplosion(hitpoints)
         local color = colors[color]    
         local cr = 10 + hitpoints * i * compact*1.5 + love.math.random()*10
         
-        love.graphics.setColor(color.r*dim, color.g*dim, color.b*dim, 0.1)
+        love.graphics.setColor(color.r*dim, color.g*dim, color.b*dim, 0.08)
 
         fastOval(xoff + dx, 128 + dy, cr)                    
         fastOval(xoff + dx, 128 + dy, cr*0.8)                    
