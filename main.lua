@@ -31,7 +31,7 @@ function love.load()
     print("Window setup failed")
   end
   
-  love.window.setTitle("Harmonic Shooter Alpha v0.01")
+  love.window.setTitle("Harmonic Shooter Alpha v0.02")
   
   tunnel.load(width, height)
   swarm.load(width, height, player)

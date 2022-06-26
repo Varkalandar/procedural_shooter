@@ -105,7 +105,9 @@ local function update(dt)
     vx = 1
   elseif love.keyboard.isDown("left") then
     vx = -1
-  elseif love.keyboard.isDown("up") then
+  end
+  
+  if love.keyboard.isDown("up") then
     vy = -1
   elseif love.keyboard.isDown("down") then
     vy = 1
@@ -131,7 +133,20 @@ local function draw()
   player.tracer:draw()
   
   love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.draw(player.canvas, math.floor(player.x) - 64, math.floor(player.y) - 64)
+  local x = math.floor(player.x)
+  local y = math.floor(player.y)
+  love.graphics.draw(player.canvas, x - 64, y - 64)
+  
+  -- drive effect
+  local drive = math.floor(time * 10) % 4
+  love.graphics.setColor(0.8, 0.9, 1, 0.125)
+  fastOval(x-26, y-4, 3+drive)
+  fastOval(x-22, y, 5+drive)
+  fastOval(x-26, y+4, 3+drive)
+  -- core
+  -- love.graphics.setColor(0.7, 0.85, 1, 0.25)
+  -- fastOval(x-20, y, 5)
+  -- fastOval(x-18, y, 3)
 end
 
 
