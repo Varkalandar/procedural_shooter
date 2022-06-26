@@ -77,6 +77,9 @@ local function checkHits()
             -- print("Ship was hit")          
             local bulletPower = 3
             v.hitpoints = math.max(0, v.hitpoints - bulletPower)
+            
+            -- draw a visual indicator for the hit
+            v.flash = true
           end
         end
       end

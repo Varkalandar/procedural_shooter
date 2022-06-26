@@ -17,7 +17,6 @@ local function load(width, height)
   swarm.height = height
   swarm.tracer = bullets.makeNewTracer()
   swarm.tracer:load(width, height)
-  
 end
 
 
@@ -25,7 +24,7 @@ local function isObsolete(group)
   for k, v in pairs(group) do
     if v.x < -1000 or v.x > swarm.width + 1000 or
        v.y < -1000 or v.y > swarm.height +1000 then
-       return true
+      return true
     end
   end
   
@@ -108,10 +107,18 @@ local function drawGroup(group)
       v.quad:setViewport(0, 0, 128, 128)
       love.graphics.draw(v.canvas, v.quad, math.floor(v.x) - 64, math.floor(v.y) - 64)
 
-      -- show hitpoints?
-      love.graphics.print(v.hitpoints, math.floor(v.x) - 10, math.floor(v.y) - 20)  
+      if v.flash then
+        local mode, alphamode = love.graphics.getBlendMode();   
+        love.graphics.setBlendMode("add")
+        love.graphics.setColor(0.7, 0.7, 0.7, 1)
+        love.graphics.draw(v.canvas, v.quad, math.floor(v.x) - 64, math.floor(v.y) - 64)      
+        love.graphics.setBlendMode(mode, alphamode)
+        v.flash = false
+      end
 
-      
+      -- show hitpoints?
+      -- love.graphics.print(v.hitpoints, math.floor(v.x) - 10, math.floor(v.y) - 20)  
+
       -- love.graphics.setColor(0, 0, 1, 1)
       -- love.graphics.rectangle('fill', math.floor(v.x) - 3, math.floor(v.y) - 3, 7, 7)
     else
@@ -143,6 +150,7 @@ local function drawGroup(group)
         love.graphics.rectangle('fill', math.floor(v.x)-size, math.floor(v.y)-size, size*2, size*2)
         ]]
         
+        love.graphics.setColor(1, 1, 1, 1)
         local mode, alphamode = love.graphics.getBlendMode();   
         love.graphics.setBlendMode("add")
         local frame = 1 + math.floor(v.hitpoints * -0.5/explosionTimeFactor)
@@ -172,9 +180,8 @@ end
 
 local function addShips(ships)
   -- print("Adding ships in slot=" .. swarm.new)
-    
-  -- print(dump(ships))
-    
+
+  -- the leading ship keeps the time for the whole group  
   ships[1].time = 0
   swarm.groups[swarm.new] = ships
   swarm.new = swarm.new + 1
