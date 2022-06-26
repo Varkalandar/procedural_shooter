@@ -46,8 +46,21 @@ local function makeShip()
                 0.9, -- noise,
                 24  -- noiseFrequencyDivision
                 )
-                
   player.gunsound:setVolume(0.025)
+
+  player.gunhit = 
+    sounds.make(180, -- duration
+                sounds.pluckEnvelope, 
+                128*0.5,
+                -15,  -- shift
+                2,  -- harmonics,
+                0, -- vibrato,
+                0, -- vibratoAmount,
+                0.3, -- noise,
+                24  -- noiseFrequencyDivision
+                )
+                
+  player.gunhit:setVolume(0.1)
 end
 
 
@@ -56,6 +69,7 @@ local function load(width, height, swarm)
   player.y = height/2
   player.canvas = love.graphics.newCanvas(128, 128)
   player.time = 0
+  player.score = 0
   player.tracer = bullets.makeNewTracer()
   player.tracer:load(width, height)
   player.tracer.color.r = 0.5
@@ -80,6 +94,13 @@ local function checkHits()
             
             -- draw a visual indicator for the hit
             v.flash = true
+            if v.hitpoints > 0 then
+              player.gunhit:stop()
+              player.gunhit:setPitch(1 + (math.random() - 0.5) * 1)
+              player.gunhit:play()
+            else
+              player.score = player.score + v.score
+            end
           end
         end
       end
@@ -128,7 +149,14 @@ local function update(dt)
     end
   end
 
+  -- playber bullets
   checkHits()
+  
+  -- swarm bullets
+  local hit = player.swarm.tracer:checkHits(player.x, player.y)
+  if hit then
+    player.score = player.score - 10
+  end
 end
 
 
@@ -139,6 +167,9 @@ local function draw()
   local x = math.floor(player.x)
   local y = math.floor(player.y)
   love.graphics.draw(player.canvas, x - 64, y - 64)
+
+  -- score
+  love.graphics.print("Power: " .. player.score, 900, 10)  
   
   -- drive effect
   local drive = math.floor(time * 10) % 4
@@ -150,6 +181,9 @@ local function draw()
   -- love.graphics.setColor(0.7, 0.85, 1, 0.25)
   -- fastOval(x-20, y, 5)
   -- fastOval(x-18, y, 3)
+  
+
+
 end
 
 

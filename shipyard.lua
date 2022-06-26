@@ -537,6 +537,7 @@ local function makeShips(count)
     ship.hitpoints = hitpoints
     ship.sound = shipyard.sounds[index]
     ship.flash = false
+    ship.score = hitpoints
     
     ships[i] = ship
     
