@@ -69,7 +69,7 @@ local function load(width, height, swarm)
   player.y = height/2
   player.canvas = love.graphics.newCanvas(128, 128)
   player.time = 0
-  player.score = 0
+  player.score = 100
   player.tracer = bullets.makeNewTracer()
   player.tracer:load(width, height)
   player.tracer.color.r = 0.5
@@ -102,6 +102,18 @@ local function checkHits()
               player.score = player.score + v.score
             end
           end
+          
+          -- ship collison checking
+          local dx = v.x - player.x
+          local dy = v.y - player.y
+          local d = dx*dx + dy*dy
+          
+          if d < 2000 then
+            player.score = player.score - 10
+            player.gunhit:stop()
+            player.gunhit:setPitch((1 + (math.random() - 0.5) * 1) * 0.5)
+            player.gunhit:play()
+          end          
         end
       end
     end
