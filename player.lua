@@ -153,6 +153,9 @@ local function update(dt)
   player.y = player.y + vy*speed
   player.time = player.time + dt
   
+  player.x = math.max(64, (math.min(player.x, player.tracer.width - 64)))
+  player.y = math.max(64, (math.min(player.y, player.tracer.height - 64)))
+  
   if love.keyboard.isDown("lctrl") or
      love.keyboard.isDown("rctrl") then  
     if player.time > 0.1 then
@@ -181,7 +184,7 @@ local function draw()
   love.graphics.draw(player.canvas, x - 64, y - 64)
 
   -- score
-  love.graphics.print("Power: " .. player.score, 900, 10)  
+  love.graphics.print("Power: " .. player.score, 870, 10)  
   
   -- drive effect
   local drive = math.floor(time * 10) % 4

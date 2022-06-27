@@ -19,33 +19,48 @@ time = 0
 
 local width = 1000
 local height = 600
+local state = 0
+local anyKey = false
 
+
+-- start a new game
+local function newGame()
+  anyKey = false
+  state = 1
+
+  tunnel.load(width, height)
+  swarm.load(width, height, player)
+  shipyard.load()
+  player.load(width, height, swarm)
+
+  -- roll in the tunnel
+  tunnel.update(25)  
+end
 
 -- all init code goes here
 function love.load()
   
   local ok = love.window.setMode(width, height, 
                                                 {vsync=1, resizable=false} )
-  
+
   if not ok then 
     print("Window setup failed")
   end
   
-  love.window.setTitle("Harmonic Shooter Alpha v0.02")
+  love.window.setTitle("Harmonic Shooter Alpha v0.03")
   
   tunnel.load(width, height)
-  swarm.load(width, height, player)
-  player.load(width, height, swarm)
-  shipyard.load()
-  
   -- roll in the tunnel
-  tunnel.update(100)
+  tunnel.update(25)  
+
+  player.load(width, height, swarm)
+  local id = player.canvas:newImageData(0, 1, 32, 32, 64, 64)
+  love.window.setIcon(id)
+
 end
 
 
--- the work that has to be done before each frame can be drawn
--- dt is a float, measuring in seconds
-function love.update(dt)
+local function updateGame(dt)
   time = time + dt 
   tunnel.update(dt)
   shipyard.update(dt)
@@ -60,6 +75,29 @@ function love.update(dt)
     swarm.addShips(ships)
   end
 
+  if player.score < 0 then
+    -- game over
+    state = 2
+    anyKey = false
+  end  
+end
+
+
+-- the work that has to be done before each frame can be drawn
+-- dt is a float, measuring in seconds
+function love.update(dt)
+  if state == 0 then
+    if anyKey then
+      newGame()
+    end
+  elseif state == 1 then
+    updateGame(dt)
+  elseif state == 2 then
+    if anyKey then
+      newGame()
+    end
+  end
+  
   if love.keyboard.isDown("f8") then    
     love.graphics.captureScreenshot("screenshot.png")
     print("Screenshot saved.")
@@ -67,11 +105,60 @@ function love.update(dt)
 end
 
 
--- draw the frame
-function love.draw()
+local function drawTitle()
+  tunnel.draw()
+  
+  love.graphics.setColor(1, 0.5, 0, 1)
+  love.graphics.setFont(fonts.giant)
+  love.graphics.print("The Harmonic", 50, 100)
+  love.graphics.print("Shooter", 240, 250)
+
+  love.graphics.setColor(0.5, 1, 0, 1)
+  love.graphics.setFont(fonts.normal)
+  love.graphics.print("Press any key to start", 400, 420)
+end
+
+
+local function drawGame()
   tunnel.draw()
   swarm.draw()
   player.draw()
+end
+
+
+local function drawGameOver()
+  tunnel.draw()
+  swarm.draw()
+  player.draw()
+  
+  love.graphics.setColor(0.0, 0.05, 0.1, 0.4)
+  love.graphics.rectangle('fill', 0, 0, width, height)
+
+  love.graphics.setColor(1, 0.5, 0, 1)
+  love.graphics.setFont(fonts.giant)
+  love.graphics.print("Game Over", 110, 180)
+
+  love.graphics.setColor(0.5, 1, 0, 1)
+  love.graphics.setFont(fonts.normal)
+  love.graphics.print("Press any key to start again", 370, 370)
+end
+
+
+-- draw the frame
+function love.draw()
+  if state == 0 then
+    drawTitle()
+  elseif state == 1 then
+    drawGame()
+  elseif state == 2 then
+    drawGameOver()
+  end
+end
+
+
+-- for the "wait for any key"
+function love.keypressed(key, scancode, isrepeat)
+  anyKey = true
 end
 
 

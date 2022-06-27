@@ -38,7 +38,7 @@ local function load(width, height)
   -- scroll speed, pixels per second
   tunnel.speed = 60
   tunnel.right = width - 1
-  tunnel.depth = -3000
+  tunnel.depth = -1000
   
   love.graphics.setCanvas(canvas)
   love.graphics.clear()
@@ -240,6 +240,7 @@ local function draw()
     love.graphics.draw(tunnel.canvas, tunnel.quad, 0, 0)
   end
   
+  love.graphics.setFont(fonts.normal)
   love.graphics.print(math.floor(tunnel.depth * 0.15) .. " Meters", 10, 10)  
 end
 

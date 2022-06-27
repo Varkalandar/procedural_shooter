@@ -81,5 +81,8 @@ function makeColorVariant(color, var)
   }
 end
 
+fonts = {}
+fonts.normal = love.graphics.newFont(18)
+fonts.giant = love.graphics.newFont(128)
 
 return painter
