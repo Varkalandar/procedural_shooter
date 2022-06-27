@@ -37,6 +37,7 @@ local function newGame()
   tunnel.update(25)  
 end
 
+
 -- all init code goes here
 function love.load()
   
