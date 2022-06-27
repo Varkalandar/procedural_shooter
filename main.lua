@@ -88,6 +88,7 @@ end
 -- dt is a float, measuring in seconds
 function love.update(dt)
   if state == 0 then
+    tunnel.update(dt*0.5)
     if anyKey then
       newGame()
     end
