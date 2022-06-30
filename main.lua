@@ -48,7 +48,7 @@ function love.load()
     print("Window setup failed")
   end
   
-  love.window.setTitle("Harmonic Shooter Alpha v0.03")
+  love.window.setTitle("Harmonic Shooter Alpha v0.04")
   
   tunnel.load(width, height)
   -- roll in the tunnel

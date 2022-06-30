@@ -177,7 +177,6 @@ end
 
 local function makeBonus(v)
   local type = 1 + math.floor(love.math.random() * 4)
-
   player.bonuses:add(v.x, v.y, -1, (love.math.random() - 0.5), type)
 end
 
@@ -191,7 +190,9 @@ local function checkHits()
           local hit = player.tracer:checkHits(v.x, v.y)
           if hit then
             -- print("Ship was hit")          
-            local bulletPower = 3
+            -- local bulletPower = 3
+            local bulletPower = 3 * 200 / (time + 200)
+            -- print("bullet power = " .. bulletPower)          
             v.hitpoints = math.max(0, v.hitpoints - bulletPower)
             
             -- draw a visual indicator for the hit
@@ -204,7 +205,7 @@ local function checkHits()
               player.power = player.power + v.score
               
               -- chance for bonus
-              if love.math.random() < v.score * 0.01 then
+              if love.math.random() < v.score * 0.003 then
                 makeBonus(v)
               end
             end
@@ -292,7 +293,7 @@ local function update(dt)
   -- swarm bullets
   local hit = player.swarm.tracer:checkHits(player.x, player.y)
   if hit then
-    player.power = player.power - 10
+    player.power = player.power - math.floor(10 + time*0.1)
   end
 
   if player.power > player.maxPower then
