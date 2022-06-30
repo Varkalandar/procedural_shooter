@@ -52,15 +52,8 @@ end
 
 local function draw(tracer)
   for i=0, tracer.top-1 do
-    local bullet = tracer.list[i]	
-    
-    if bullet.active then
-      love.graphics.setColor(tracer.color.r*0.6, tracer.color.g*0.6, tracer.color.b*0.6, 1)
-      love.graphics.rectangle('fill', math.floor(bullet.x)-2, math.floor(bullet.y)-1, 5, 3)
-      love.graphics.setColor(tracer.color.r, tracer.color.g, tracer.color.b, 1)
-      love.graphics.rectangle('fill', math.floor(bullet.x)-3, math.floor(bullet.y), 6, 1)
-    end
-    
+    local bullet = tracer.list[i]	    
+    tracer.drawBullet(bullet)
   end
 end
 
@@ -76,17 +69,17 @@ local function checkHits(tracer, x, y)
       
       if d < 800 then
         bullet.active = false
-        return true
+        return bullet
       end
     end
   end
   
   -- no bullet hit
-  return false
+  return nil
 end
 
 
-local function add(tracer, x, y, dx, dy)
+local function add(tracer, x, y, dx, dy, data)
   -- scan for a free bullet slot
   for i=0, tracer.top-1 do
     local bullet = tracer.list[i]
@@ -95,18 +88,19 @@ local function add(tracer, x, y, dx, dy)
       bullet.y = y
       bullet.dx = dx
       bullet.dy = dy
-      bullet.active = true
+      bullet.data = data
+      bullet.active = true      
       return -- done
     end
   end
   
-  -- we need to add one more bullet
-  tracer.list[tracer.top] = {x=x, y=y, dx=dx, dy=dy, active = true}
+  -- we need to add an additional bullet to the array
+  tracer.list[tracer.top] = {x=x, y=y, dx=dx, dy=dy, data=data, active = true}
   tracer.top = tracer.top + 1
 end
 
 
-local function makeNewTracer()
+local function makeNewTracer(bulletDrawFunction)
   tracer = {}
   tracer.load = load
   tracer.update = update
@@ -114,7 +108,7 @@ local function makeNewTracer()
 
   tracer.add = add
   tracer.checkHits = checkHits
-
+  tracer.drawBullet = bulletDrawFunction
   return tracer
 end  
 

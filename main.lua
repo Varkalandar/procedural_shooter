@@ -76,7 +76,7 @@ local function updateGame(dt)
     swarm.addShips(ships)
   end
 
-  if player.score < 0 then
+  if player.power < 0 then
     -- game over
     state = 2
     anyKey = false

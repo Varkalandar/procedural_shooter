@@ -64,19 +64,121 @@ local function makeShip()
 end
 
 
+local function makeBonusBall(x, y)
+  love.graphics.setBlendMode("alpha")
+
+  fillOval(x, y, 8)
+  -- highlight
+  love.graphics.setColor(1, 1, 1, 0.5)
+  fillOval(x-2, y-2, 2)
+  fillOval(x-1, y-1, 1)
+  love.graphics.setBlendMode("subtract")
+  love.graphics.setColor(1, 1, 1, 0.5)
+  fastOval(x+0.2, y+0.5, 7)
+  
+  love.graphics.setBlendMode("alpha")
+end
+
+
+local function makeBonusGfx()
+  love.graphics.setCanvas(player.bonusCanvas)
+  love.graphics.clear()
+  love.graphics.setBlendMode("alpha")
+
+  -- add max power bonus
+  love.graphics.setColor(0.2, 0.3, 1, 0.9)
+  makeBonusBall(8, 8)
+  -- upper cannon bonus
+  love.graphics.setColor(0.9, 0.3, 0, 0.9)
+  makeBonusBall(16+8, 8)
+  -- lower cannon bonus
+  love.graphics.setColor(0.8, 0, 0.8, 0.9)
+  makeBonusBall(32+8, 8)
+  -- back cannon bonus
+  love.graphics.setColor(0.3, 0.9, 0, 0.9)
+  makeBonusBall(48+8, 8)
+
+  love.graphics.setCanvas()
+end
+
+
+local function drawPlayerBullet(bullet)
+  if bullet.active then
+    love.graphics.setColor(0.5*0.6, 1.0*0.6, 0.1*0.6, 1)
+    love.graphics.rectangle('fill', math.floor(bullet.x)-2, math.floor(bullet.y)-1, 5, 3)
+    love.graphics.setColor(0.5, 1, 0.1, 1)
+    love.graphics.rectangle('fill', math.floor(bullet.x)-2, math.floor(bullet.y), 6, 1)
+  end
+end
+
+
+local function drawBonus(bullet)
+  if bullet.active then
+    local mode, alphamode = love.graphics.getBlendMode();   
+    love.graphics.setBlendMode("add")
+    love.graphics.setColor(1, 1, 1, 1)
+    
+    player.bonusQuad:setViewport((bullet.data-1) * 16, 0, 16, 16)
+    
+    love.graphics.draw(player.bonusCanvas, player.bonusQuad, math.floor(bullet.x)-8, math.floor(bullet.y)-8)
+    love.graphics.setBlendMode(mode, alphamode)
+  end
+end
+
+
 local function load(width, height, swarm)
   player.x = 100
   player.y = height/2
   player.canvas = love.graphics.newCanvas(128, 128)
+  player.bonusCanvas = love.graphics.newCanvas(16*4, 16)
+  player.bonusQuad = love.graphics.newQuad(0, 0, 16, 16, player.bonusCanvas)
   player.time = 0
-  player.score = 100
-  player.tracer = bullets.makeNewTracer()
+  player.power = 100
+  player.maxPower = 200
+  player.upperCannon = false
+  player.lowerCannon = false
+  player.backCannon = false
+  player.tracer = bullets.makeNewTracer(drawPlayerBullet)
   player.tracer:load(width, height)
-  player.tracer.color.r = 0.5
-  player.tracer.color.g = 1.0
-  player.tracer.color.b = 0.1
+  player.bonuses = bullets.makeNewTracer(drawBonus)
+  player.bonuses:load(width, height)
   player.swarm = swarm
-  makeShip()  
+
+  -- show messages to the player
+  player.message = ""
+  player.messageTime = 0
+
+  makeShip()
+  makeBonusGfx()  
+end
+
+
+local function collectBonuses()
+  local hit = player.bonuses:checkHits(player.x, player.y)
+  
+  if hit then
+    if hit.data == 1 then
+      player.maxPower = player.maxPower + 50    
+      player.message = "+50 Max Power!"
+    elseif hit.data == 2 then
+      player.upperCannon = true
+      player.message = "Upper Cannon Activated!"
+    elseif hit.data == 3 then
+      player.lowerCannon = true
+      player.message = "Lower Cannon Activated!"
+    elseif hit.data == 4 then
+      player.backCannon = true
+      player.message = "Back Cannon Activated!"
+    end
+    player.messageTime = time + 3
+  end  
+end
+
+
+local function makeBonus(v)
+  local type = 1 + math.floor(love.math.random() * 4)
+
+  player.bonuses:add(v.x, v.y, -1, (love.math.random() - 0.5), type)
 end
 
 
@@ -99,7 +201,12 @@ local function checkHits()
               player.gunhit:setPitch(1 + (math.random() - 0.5) * 1)
               player.gunhit:play()
             else
-              player.score = player.score + v.score
+              player.power = player.power + v.score
+              
+              -- chance for bonus
+              if love.math.random() < v.score * 0.01 then
+                makeBonus(v)
+              end
             end
           end
           
@@ -109,7 +216,7 @@ local function checkHits()
           local d = dx*dx + dy*dy
           
           if d < 2000 then
-            player.score = player.score - 10
+            player.power = player.power - 10
             player.gunhit:stop()
             player.gunhit:setPitch((1 + (math.random() - 0.5) * 1) * 0.5)
             player.gunhit:play()
@@ -126,11 +233,24 @@ local function fire()
   player.gunsound:play()
 
   player.tracer:add(player.x + 28, player.y, 5, 0)
+  
+  if player.upperCannon then
+    player.tracer:add(player.x + 26, player.y-2, 5, -1.5)
+  end
+  
+  if player.lowerCannon then
+    player.tracer:add(player.x + 26, player.y+2, 5, 1.5)
+  end
+  
+  if player.backCannon then
+    player.tracer:add(player.x - 24, player.y, -5, 0)
+  end
 end
 
 
 local function update(dt)
   player.tracer:update(dt)
+  player.bonuses:update(dt)
 
   local speed = 180 * dt
 
@@ -164,19 +284,26 @@ local function update(dt)
     end
   end
 
-  -- playber bullets
+  -- player bullets
   checkHits()
+  
+  collectBonuses()
   
   -- swarm bullets
   local hit = player.swarm.tracer:checkHits(player.x, player.y)
   if hit then
-    player.score = player.score - 10
+    player.power = player.power - 10
+  end
+
+  if player.power > player.maxPower then
+    player.power = player.maxPower
   end
 end
 
 
 local function draw()
   player.tracer:draw()
+  player.bonuses:draw()
   
   love.graphics.setColor(1, 1, 1, 1)
   local x = math.floor(player.x)
@@ -184,7 +311,8 @@ local function draw()
   love.graphics.draw(player.canvas, x - 64, y - 64)
 
   -- score
-  love.graphics.print("Power: " .. player.score, 870, 10)  
+
+  love.graphics.print("Power: " .. player.power .. "/" .. player.maxPower, 820, 10)  
   
   -- drive effect
   local drive = math.floor(time * 10) % 4
@@ -197,8 +325,12 @@ local function draw()
   -- fastOval(x-20, y, 5)
   -- fastOval(x-18, y, 3)
   
-
-
+  
+  -- messages
+  if player.messageTime > time then
+    love.graphics.setColor(0.2, 1, 0, 1)
+    love.graphics.print(player.message, 400, 80)  
+  end
 end
 
 

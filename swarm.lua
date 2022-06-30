@@ -9,13 +9,23 @@ local bullets = require("bullets")
 local swarm = {}
 
 
+local function drawSwarmBullet(bullet)
+  if bullet.active then
+    love.graphics.setColor(1.0*0.6, 0.5*0.6, 0.1*0.6, 1)
+    love.graphics.rectangle('fill', math.floor(bullet.x)-2, math.floor(bullet.y)-1, 5, 3)
+    love.graphics.setColor(1, 0.5, 0.1, 1)
+    love.graphics.rectangle('fill', math.floor(bullet.x)-3, math.floor(bullet.y), 6, 1)
+  end
+end
+
+
 local function load(width, height)
   swarm.groups = {}  -- ship groups
   swarm.new = 0 -- highest group index
   swarm.old = 0 -- lowest group index
   swarm.width = width
   swarm.height = height
-  swarm.tracer = bullets.makeNewTracer()
+  swarm.tracer = bullets.makeNewTracer(drawSwarmBullet)
   swarm.tracer:load(width, height)
 end
 
