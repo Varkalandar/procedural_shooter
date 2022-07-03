@@ -197,7 +197,7 @@ local function collectBonuses()
   if hit then
     if hit.data == 1 then
       player.maxPower = player.maxPower + 50    
-      player.message = "+50 max power!"
+      player.message = "+50 to max shield!"
     elseif hit.data == 2 then
       player.upperCannon = true
       player.message = "Upper cannon activated!"
@@ -209,7 +209,7 @@ local function collectBonuses()
       player.message = "Back cannon activated!"
     elseif hit.data == 5 then
       player.bulletPower = player.bulletPower + 1
-      player.message = "+1 bullet power!"
+      player.message = "+1 to bullet power!"
     end
 
     -- show mesage for 3 seconds
