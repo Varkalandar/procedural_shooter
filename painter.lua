@@ -18,6 +18,11 @@ function hline(x, y, width)
 end
 
 
+function vline(x, y, height)
+  love.graphics.rectangle('fill', x, y, 1, height)
+end
+
+
 function fillOval(xc, yc, radius)
   local f = 1 - radius
   local ddF_x = 1
@@ -82,6 +87,7 @@ function makeColorVariant(color, var)
 end
 
 fonts = {}
+fonts.small = love.graphics.newFont(14)
 fonts.normal = love.graphics.newFont(18)
 fonts.giant = love.graphics.newFont(128)
 

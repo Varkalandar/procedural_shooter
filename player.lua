@@ -61,6 +61,32 @@ local function makeShip()
                 )
                 
   player.gunhit:setVolume(0.1)
+
+  player.tunnelcrash = 
+    sounds.make(180, -- duration
+                sounds.pluckEnvelope, 
+                512,
+                0,  -- shift
+                2,  -- harmonics,
+                0, -- vibrato,
+                0, -- vibratoAmount,
+                0.9, -- noise,
+                4  -- noiseFrequencyDivision
+                )
+  player.tunnelcrash:setVolume(0.3)
+
+  player.bonussound = 
+    sounds.make(400, -- duration
+                sounds.pluckEnvelope, 
+                1024,
+                50,  -- shift
+                8,  -- harmonics,
+                180, -- vibrato,
+                100, -- vibratoAmount,
+                0.1, -- noise,
+                10  -- noiseFrequencyDivision
+                )
+
 end
 
 
@@ -71,6 +97,7 @@ local function makeBonusBall(x, y)
   -- highlight
   love.graphics.setColor(1, 1, 1, 0.5)
   fillOval(x-2, y-2, 2)
+  love.graphics.setColor(1, 1, 1, 0.75)
   fillOval(x-1, y-1, 1)
   love.graphics.setBlendMode("subtract")
   love.graphics.setColor(1, 1, 1, 0.5)
@@ -88,15 +115,22 @@ local function makeBonusGfx()
   -- add max power bonus
   love.graphics.setColor(0.2, 0.3, 1, 0.9)
   makeBonusBall(8, 8)
+
   -- upper cannon bonus
   love.graphics.setColor(0.9, 0.3, 0, 0.9)
   makeBonusBall(16+8, 8)
+
   -- lower cannon bonus
   love.graphics.setColor(0.8, 0, 0.8, 0.9)
   makeBonusBall(32+8, 8)
+
   -- back cannon bonus
   love.graphics.setColor(0.3, 0.9, 0, 0.9)
   makeBonusBall(48+8, 8)
+
+  -- bullet power bonus
+  love.graphics.setColor(0.8, 0.7, 0, 0.9)
+  makeBonusBall(64+8, 8)
 
   love.graphics.setCanvas()
 end
@@ -126,11 +160,13 @@ local function drawBonus(bullet)
 end
 
 
-local function load(width, height, swarm)
+local function load(width, height, swarm, tunnel)
   player.x = 100
   player.y = height/2
+  player.widht = width
+  player.height = height
   player.canvas = love.graphics.newCanvas(128, 128)
-  player.bonusCanvas = love.graphics.newCanvas(16*4, 16)
+  player.bonusCanvas = love.graphics.newCanvas(16*5, 16)
   player.bonusQuad = love.graphics.newQuad(0, 0, 16, 16, player.bonusCanvas)
   player.time = 0
   player.power = 100
@@ -138,12 +174,14 @@ local function load(width, height, swarm)
   player.upperCannon = false
   player.lowerCannon = false
   player.backCannon = false
+  player.bulletPower = 3
   player.tracer = bullets.makeNewTracer(drawPlayerBullet)
   player.tracer:load(width, height)
   player.bonuses = bullets.makeNewTracer(drawBonus)
   player.bonuses:load(width, height)
   player.swarm = swarm
-
+  player.tunnel = tunnel
+  
   -- show messages to the player
   player.message = ""
   player.messageTime = 0
@@ -159,25 +197,56 @@ local function collectBonuses()
   if hit then
     if hit.data == 1 then
       player.maxPower = player.maxPower + 50    
-      player.message = "+50 Max Power!"
+      player.message = "+50 max power!"
     elseif hit.data == 2 then
       player.upperCannon = true
-      player.message = "Upper Cannon Activated!"
+      player.message = "Upper cannon activated!"
     elseif hit.data == 3 then
       player.lowerCannon = true
-      player.message = "Lower Cannon Activated!"
+      player.message = "Lower cannon activated!"
     elseif hit.data == 4 then
       player.backCannon = true
-      player.message = "Back Cannon Activated!"
+      player.message = "Back cannon activated!"
+    elseif hit.data == 5 then
+      player.bulletPower = player.bulletPower + 1
+      player.message = "+1 bullet power!"
     end
+
+    -- show mesage for 3 seconds
     player.messageTime = time + 3
+    
+    player.bonussound:stop()
+    player.bonussound:setPitch(1 + (math.random() - 0.5) * 0.25)
+    player.bonussound:play()
+
   end  
 end
 
 
 local function makeBonus(v)
-  local type = 1 + math.floor(love.math.random() * 4)
+  local type = 1 + math.floor(love.math.random() * 5)
+  -- local type = 5
   player.bonuses:add(v.x, v.y, -1, (love.math.random() - 0.5), type)
+end
+
+
+local function checkTunnelCollision()
+  local tunnel = player.tunnel
+  local left = math.floor(tunnel.right) - tunnel.width
+  local px = math.floor(player.x)
+  local x = (left + px) % (2*tunnel.width)
+  
+  local top = tunnel.topY[x] 
+  local bottom = tunnel.bottomY[x] 
+
+  -- vline(, top, bottom-top)
+
+  if player.y < top + 32 or player.y > bottom-32 then
+    player.power = player.power - 1
+    player.tunnelcrash:stop()
+    player.tunnelcrash:setPitch(1 + (math.random() - 0.5) * 0.25)
+    player.tunnelcrash:play()
+  end
 end
 
 
@@ -190,8 +259,7 @@ local function checkHits()
           local hit = player.tracer:checkHits(v.x, v.y)
           if hit then
             -- print("Ship was hit")          
-            -- local bulletPower = 3
-            local bulletPower = 3 * 200 / (time + 200)
+            local bulletPower = player.bulletPower * 200 / (time + 200)
             -- print("bullet power = " .. bulletPower)          
             v.hitpoints = math.max(0, v.hitpoints - bulletPower)
             
@@ -205,7 +273,7 @@ local function checkHits()
               player.power = player.power + v.score
               
               -- chance for bonus
-              if love.math.random() < v.score * 0.003 then
+              if love.math.random() < 0.005 + v.score * 0.003 then
                 makeBonus(v)
               end
             end
@@ -290,10 +358,15 @@ local function update(dt)
   
   collectBonuses()
   
+  checkTunnelCollision()  
+  
   -- swarm bullets
   local hit = player.swarm.tracer:checkHits(player.x, player.y)
   if hit then
     player.power = player.power - math.floor(10 + time*0.1)
+    player.tunnelcrash:stop()
+    player.tunnelcrash:setPitch((1 + (math.random() - 0.5) * 1) * 0.5)
+    player.tunnelcrash:play()    
   end
 
   if player.power > player.maxPower then
@@ -311,9 +384,12 @@ local function draw()
   local y = math.floor(player.y)
   love.graphics.draw(player.canvas, x - 64, y - 64)
 
-  -- score
+  -- status
+  love.graphics.print("Shield: " .. player.power .. "/" .. player.maxPower, 820, 10)  
+  
+  love.graphics.setFont(fonts.small)
+  love.graphics.print("Bullet power: " .. player.bulletPower, 10, player.height-20)  
 
-  love.graphics.print("Power: " .. player.power .. "/" .. player.maxPower, 820, 10)  
   
   -- drive effect
   local drive = math.floor(time * 10) % 4

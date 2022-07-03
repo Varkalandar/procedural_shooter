@@ -31,7 +31,7 @@ local function newGame()
   tunnel.load(width, height)
   swarm.load(width, height, player)
   shipyard.load()
-  player.load(width, height, swarm)
+  player.load(width, height, swarm, tunnel)
 
   -- roll in the tunnel
   tunnel.update(25)  
@@ -48,7 +48,7 @@ function love.load()
     print("Window setup failed")
   end
   
-  love.window.setTitle("Harmonic Shooter Alpha v0.04")
+  love.window.setTitle("Harmonic Shooter Alpha v0.05")
   
   tunnel.load(width, height)
   -- roll in the tunnel
