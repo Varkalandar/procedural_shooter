@@ -75,6 +75,8 @@ local function update(dt)
   tunnel.depth = tunnel.depth + vd
   local r2 = math.floor(tunnel.right)
 
+  love.graphics.setCanvas(tunnel.canvas)  
+  
   for x=r1, r2-1 do
 
     local xm = x % (2*tunnel.width)
@@ -148,7 +150,7 @@ local function update(dt)
       
     -- now, draw
     
-    love.graphics.setCanvas(tunnel.canvas)  
+    love.graphics.setBlendMode("alpha")
     love.graphics.setColor(red*0.6, green*0.3, blue*1.0, 1)
 
     -- walls
@@ -160,50 +162,10 @@ local function update(dt)
     vline(xm, top-3, 4)
     vline(xm, bottom, 3)
 
-    -- center must be cleared 'ahead' by one pixel, to allow stars
-    love.graphics.setColor(0, 0, 0, 1)
-    vline(xm+1, 0, tunnel.height)
-
-    -- stars
-    for y = top, bottom do
-      if love.math.random() < 0.002 then
-        local lum = love.math.random() * 0.6 + 0.1
-
-        -- dominant red or dominant blue star?
-        if love.math.random() < 0.8 then
-          local r = lum
-          local g = r * (0.7 + love.math.random() * 0.3)
-          local b = g * (0.7 + love.math.random() * 0.3)
-          love.graphics.setColor(r, g, b, 1)
-        else
-          local b = lum
-          local g = b * (0.7 + love.math.random() * 0.3)
-          local r = g * (0.7 + love.math.random() * 0.3)
-          love.graphics.setColor(r, g, b, 1)
-        end
-        
-        if love.math.random() < 0.7 then
-          -- small star
-          vline(xm, y, 1)
-        else
-          -- big star  
-          vline(xm, y, 2)
-          vline(xm+1, y, 2)
-        end
-      end
-      if love.math.random() < 0.0002 then
-        -- very big star
-        local b = love.math.random() * 0.6 + 0.2
-        love.graphics.setColor(b, b, b, 0.7)
-        vline(xm, y-1, 3)
-        vline(xm-1, y, 1)
-        vline(xm+1, y, 1)
-        love.graphics.setColor(b, b, b, 1)
-        vline(xm, y, 1)
-      end
-    end
-    
-    love.graphics.setCanvas()    
+    -- center 
+    love.graphics.setBlendMode("replace")
+    love.graphics.setColor(0, 0, 0, 0)
+    vline(xm, top, bottom-top-1)
     
     tunnel.red = red
     tunnel.green = green
@@ -218,6 +180,8 @@ local function update(dt)
     
     -- print("recording " .. xm .. " t=" .. top .. " b=" .. bottom)
   end
+
+  love.graphics.setCanvas()
   
   -- wrap
   if tunnel.right >= 3*tunnel.width then  

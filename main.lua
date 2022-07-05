@@ -8,6 +8,7 @@
 -- global functions
 require("painter")
 
+local stars = require("stars")
 local tunnel = require("tunnel")
 local shipyard = require("shipyard")
 local swarm = require("swarm")
@@ -28,12 +29,14 @@ local function newGame()
   anyKey = false
   state = 1
 
+  stars.load(width, height)
   tunnel.load(width, height)
   swarm.load(width, height, player)
   shipyard.load()
   player.load(width, height, swarm, tunnel)
 
   -- roll in the tunnel
+  stars.update(50)  
   tunnel.update(25)  
 end
 
@@ -42,27 +45,26 @@ end
 function love.load()
   
   local ok = love.window.setMode(width, height, 
-                                                {vsync=1, resizable=false} )
+                                 {vsync=1, resizable=false})
 
   if not ok then 
     print("Window setup failed")
   end
   
-  love.window.setTitle("Harmonic Shooter Alpha v0.05")
+  love.window.setTitle("Harmonic Shooter Alpha v0.06")
   
-  tunnel.load(width, height)
-  -- roll in the tunnel
-  tunnel.update(25)  
-
   player.load(width, height, swarm)
   local id = player.canvas:newImageData(0, 1, 32, 32, 64, 64)
   love.window.setIcon(id)
 
+  newGame()
+  state = 0
 end
 
 
 local function updateGame(dt)
   time = time + dt 
+  stars.update(dt)
   tunnel.update(dt)
   shipyard.update(dt)
   swarm.update(dt)
@@ -88,6 +90,7 @@ end
 -- dt is a float, measuring in seconds
 function love.update(dt)
   if state == 0 then
+    stars.update(dt*0.5)
     tunnel.update(dt*0.5)
     if anyKey then
       newGame()
@@ -108,6 +111,7 @@ end
 
 
 local function drawTitle()
+  stars.draw()
   tunnel.draw()
   
   love.graphics.setColor(1, 0.5, 0, 1)
@@ -122,6 +126,7 @@ end
 
 
 local function drawGame()
+  stars.draw()
   tunnel.draw()
   swarm.draw()
   player.draw()
@@ -129,6 +134,7 @@ end
 
 
 local function drawGameOver()
+  stars.draw()
   tunnel.draw()
   swarm.draw()
   player.draw()
@@ -148,6 +154,7 @@ end
 
 -- draw the frame
 function love.draw()
+  love.graphics.setBlendMode("alpha")
   if state == 0 then
     drawTitle()
   elseif state == 1 then
@@ -177,4 +184,3 @@ function dump(o)
     return tostring(o)
   end
 end
-
