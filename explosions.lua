@@ -8,29 +8,6 @@
 local explosions = {}
 
 
-local function makeStar(x, y, rad, color) 
-  for i=0, rad do
-    local dim = 4/(i+4)
-    love.graphics.setColor(color.r*dim, color.g*dim, color.b*dim, color.a)
-
-    setpix(x+i, y)
-    setpix(x, y+i)
-    setpix(x-i, y)
-    setpix(x, y-i)
-  end
-
-  for i=1, rad/2 do
-    local dim = 4/(i+4)
-    love.graphics.setColor(color.r*dim, color.g*dim, color.b*dim, color.a)
-
-    setpix(x+i, y+i)
-    setpix(x+i, y-i)
-    setpix(x-i, y+i)
-    setpix(x-i, y-i)
-  end
-end
-
-
 -- reuse these to avoid creating too much garbage
 local x = {} 
 local y = {}

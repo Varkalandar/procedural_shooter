@@ -65,6 +65,31 @@ function fastOval(x, y, radius)
 end
 
 
+function makeStar(x, y, rad, color) 
+  -- h/v spikes
+  for i=0, rad do
+    local dim = rad/(i*1.5+rad)
+    love.graphics.setColor(color.r*dim, color.g*dim, color.b*dim, color.a*dim)
+
+    setpix(x+i, y)
+    setpix(x, y+i)
+    setpix(x-i, y)
+    setpix(x, y-i)
+  end
+
+  -- diagonal spikes
+  for i=1, rad/2 do
+    local dim = rad/(i*1.5+rad)
+    love.graphics.setColor(color.r*dim, color.g*dim, color.b*dim, color.a*dim)
+
+    setpix(x+i, y+i)
+    setpix(x+i, y-i)
+    setpix(x-i, y+i)
+    setpix(x-i, y-i)
+  end
+end
+
+
 function makeColor(base, range)
   return
   {

@@ -375,6 +375,20 @@ local function update(dt)
 end
 
 
+local function drawShieldStatus(x, y)
+  love.graphics.setColor(0, 0, 0, 1)
+  love.graphics.rectangle('fill', x+81, y+1, 100, 16)
+  love.graphics.setColor(0, 0, 1, 1)
+  love.graphics.rectangle('fill', x+81, y+1, math.floor(100 * player.power / player.maxPower), 16)
+
+  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.print("Shield:", x, y) 
+  love.graphics.print(player.maxPower, x+200, y) 
+  love.graphics.rectangle('line', x+80, y, 102, 18)
+  
+end
+
+
 local function draw()
   player.tracer:draw()
   player.bonuses:draw()
@@ -385,11 +399,10 @@ local function draw()
   love.graphics.draw(player.canvas, x - 64, y - 64)
 
   -- status
-  love.graphics.print("Shield: " .. player.power .. "/" .. player.maxPower, 820, 10)  
+  drawShieldStatus(730, 10)
   
   love.graphics.setFont(fonts.small)
-  love.graphics.print("Bullet power: " .. player.bulletPower, 10, player.height-20)  
-
+  love.graphics.print("Bullet power: " .. player.bulletPower, 10, player.height-20)
   
   -- drive effect
   local drive = math.floor(time * 10) % 4
@@ -398,10 +411,8 @@ local function draw()
   fastOval(x-22, y, 5+drive)
   fastOval(x-26, y+4, 3+drive)
   -- core
-  -- love.graphics.setColor(0.7, 0.85, 1, 0.25)
-  -- fastOval(x-20, y, 5)
-  -- fastOval(x-18, y, 3)
-  
+  love.graphics.setColor(0.7, 0.85, 1, 0.25)
+  love.graphics.ellipse("fill", x-30-drive, y, 7+drive*2, 2+drive, 24)
   
   -- messages
   if player.messageTime > time then

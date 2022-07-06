@@ -75,21 +75,35 @@ local function update(dt)
           vline(xm+1, y, 2)
         end
       end
-      if love.math.random() < 0.0002 then
-        -- very big star
-        local b = love.math.random() * 0.5 + 0.2
-        love.graphics.setColor(b, b, b, 0.7)
-        vline(xm, y-1, 3)
-        vline(xm-1, y, 1)
-        vline(xm+1, y, 1)
-        love.graphics.setColor(b, b, b, 1)
-        vline(xm, y, 1)
+      if love.math.random() < 0.0001 then
+        print("x=" .. x)
+        
+        if x < 3*stars.width - 5 then
+          -- very big stars
+          local lum = love.math.random() * 0.7 + 0.3
+
+          local color
+          if love.math.random() < 0.8 then
+            local r = lum
+            local g = r * (0.8 + love.math.random() * 0.4)
+            local b = g * (0.7 + love.math.random() * 0.3)
+            color = {r=r, g=g, b=b, a=1}
+          else
+            local b = lum
+            local g = b * (0.7 + love.math.random() * 0.3)
+            local r = g * (0.7 + love.math.random() * 0.3)
+            color = {r=r, g=g, b=b, a=1}
+          end
+
+          local rad = 1 + math.floor(love.math.random() * 5)
+          makeStar(xm + rad, y, rad, color)
+        end
       end
     end
     
-    -- center must be cleared 'ahead' by one pixel, to allow stars
+    -- clear left of visible field
     love.graphics.setColor(0, 0, 0, 1)
-    vline(xm+1, 0, stars.height)
+    vline((x-stars.width) % (2*stars.width), 0, stars.height)
     
   end
   
