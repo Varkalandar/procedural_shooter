@@ -171,6 +171,7 @@ local function load(width, height, swarm, tunnel)
   player.time = 0
   player.power = 100
   player.maxPower = 200
+  player.score = 0
   player.upperCannon = false
   player.lowerCannon = false
   player.backCannon = false
@@ -271,6 +272,7 @@ local function checkHits()
               player.gunhit:play()
             else
               player.power = player.power + v.score
+              player.score = player.score + v.score * 10
               
               -- chance for bonus
               if love.math.random() < 0.005 + v.score * 0.003 then
@@ -400,6 +402,10 @@ local function draw()
 
   -- status
   drawShieldStatus(730, 10)
+
+  love.graphics.setFont(fonts.big)
+  love.graphics.print("Score: " .. player.score, 410, 10) 
+
   
   love.graphics.setFont(fonts.small)
   love.graphics.print("Bullet power: " .. player.bulletPower, 10, player.height-20)

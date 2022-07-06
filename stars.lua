@@ -76,7 +76,6 @@ local function update(dt)
         end
       end
       if love.math.random() < 0.0001 then
-        print("x=" .. x)
         
         if x < 3*stars.width - 5 then
           -- very big stars

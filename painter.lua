@@ -68,7 +68,7 @@ end
 function makeStar(x, y, rad, color) 
   -- h/v spikes
   for i=0, rad do
-    local dim = rad/(i*1.5+rad)
+    local dim = rad/(i*1.2+rad)
     love.graphics.setColor(color.r*dim, color.g*dim, color.b*dim, color.a*dim)
 
     setpix(x+i, y)
@@ -79,7 +79,7 @@ function makeStar(x, y, rad, color)
 
   -- diagonal spikes
   for i=1, rad/2 do
-    local dim = rad/(i*1.5+rad)
+    local dim = rad/(i*1.2+rad)
     love.graphics.setColor(color.r*dim, color.g*dim, color.b*dim, color.a*dim)
 
     setpix(x+i, y+i)
@@ -114,6 +114,7 @@ end
 fonts = {}
 fonts.small = love.graphics.newFont(14)
 fonts.normal = love.graphics.newFont(18)
+fonts.big = love.graphics.newFont(24)
 fonts.giant = love.graphics.newFont(128)
 
 return painter
