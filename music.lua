@@ -107,88 +107,86 @@ local function synthPitch()
   return pitch
 end
 
-
+synth:play()
 
 while true do
+  local message = channel:pop()
 
-  synth:play()
-
-  while true do
-    local message = channel:pop()
-
-    if message == "stop" then
-      print("Stopping music.")
-      synth:stop()
-      snare:stop()
-      bass:stop()
-      break
-    end
-  
-    local t1 = love.timer.getTime()
-    
-    if t1 > nextBeat then
-      nextBeat = love.timer.getTime() + 0.1
-      local beat = beats % 4
-      
-      if beat == 0 then
-        bass:play()
-        
-        if love.math.random() < 0.8 then
-          synth:stop()
-          synth:setPitch(synthPitch()) 
-          synth:play()
-        end
-
-        if love.math.random() < 0.6 then
-          synthLow:stop()
-          synthLow:setPitch(synthPitch()) 
-          synthLow:play()
-        end
-
-        if love.math.random() < 0.5 then
-          synthHigh:stop()
-          synthHigh:setPitch(synthPitch()) 
-          synthHigh:play()
-        end
-      end
-
-      if beat == 1 and love.math.random() < 0.2 then
-        bass:stop()
-        bass:play()
-        if love.math.random() < 0.5 then
-          synthHigh:stop()
-          synthHigh:setPitch(synthPitch()) 
-          synthHigh:play()
-        end
-      end
-      
-      if beat == 2 then
-        snare:play()
-
-        if love.math.random() < 0.4 then
-          synth:stop()
-          synth:setPitch(synthPitch()) 
-          synth:play()
-        end
-        if love.math.random() < 0.5 then
-          synthHigh:stop()
-          synthHigh:setPitch(synthPitch()) 
-          synthHigh:play()
-        end
-      end
-      
-      if beat == 3 and love.math.random() < 0.5 then
-        snare:play()
-        if love.math.random() < 0.5 then
-          synthHigh:stop()
-          synthHigh:setPitch(synthPitch()) 
-          synthHigh:play()
-        end
-      end
-
-      beats = beats + 1
-    end
+  if message == "stop" then
+    print("Stopping music.")
+    synth:stop()
+    snare:stop()
+    bass:stop()
+    break
   end
+
+  local t1 = love.timer.getTime()
+  
+  if t1 > nextBeat then
+    nextBeat = love.timer.getTime() + 0.1
+    local beat = beats % 4
+    
+    if beat == 0 then
+      bass:play()
+      
+      if love.math.random() < 0.8 then
+        synth:stop()
+        synth:setPitch(synthPitch()) 
+        synth:play()
+      end
+
+      if love.math.random() < 0.6 then
+        synthLow:stop()
+        synthLow:setPitch(synthPitch()) 
+        synthLow:play()
+      end
+
+      if love.math.random() < 0.5 then
+        synthHigh:stop()
+        synthHigh:setPitch(synthPitch()) 
+        synthHigh:play()
+      end
+    end
+
+    if beat == 1 and love.math.random() < 0.2 then
+      bass:stop()
+      bass:play()
+      if love.math.random() < 0.5 then
+        synthHigh:stop()
+        synthHigh:setPitch(synthPitch()) 
+        synthHigh:play()
+      end
+    end
+    
+    if beat == 2 then
+      snare:play()
+
+      if love.math.random() < 0.4 then
+        synth:stop()
+        synth:setPitch(synthPitch()) 
+        synth:play()
+      end
+      if love.math.random() < 0.5 then
+        synthHigh:stop()
+        synthHigh:setPitch(synthPitch()) 
+        synthHigh:play()
+      end
+    end
+    
+    if beat == 3 and love.math.random() < 0.5 then
+      snare:play()
+      if love.math.random() < 0.5 then
+        synthHigh:stop()
+        synthHigh:setPitch(synthPitch()) 
+        synthHigh:play()
+      end
+    end
+
+    beats = beats + 1
+  end
+
+  love.timer.sleep(1/60)
+
 end
 
 
