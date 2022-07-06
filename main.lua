@@ -23,7 +23,10 @@ local height = 600
 local state = 0
 local anyKey = false
 
-
+-- music thread
+local music = {}
+  
+  
 -- start a new game
 local function newGame()
   anyKey = false
@@ -59,6 +62,10 @@ function love.load()
 
   newGame()
   state = 0
+    
+  music.channel = love.thread.getChannel("control")
+  music.thread = love.thread.newThread("music.lua")
+  music.thread:start()
 end
 
 
@@ -168,6 +175,11 @@ end
 -- for the "wait for any key"
 function love.keypressed(key, scancode, isrepeat)
   anyKey = true
+end
+
+
+function love.quit()
+  love.thread.getChannel("control"):push("stop")
 end
 
 
