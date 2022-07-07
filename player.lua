@@ -49,18 +49,19 @@ local function makeShip()
   player.gunsound:setVolume(0.025)
 
   player.gunhit = 
-    sounds.make(180, -- duration
+    sounds.make(240, -- duration
                 sounds.pluckEnvelope, 
                 128*0.5,
                 -15,  -- shift
                 2,  -- harmonics,
-                0, -- vibrato,
-                0, -- vibratoAmount,
-                0.3, -- noise,
-                24  -- noiseFrequencyDivision
+                150, -- vibrato,
+                20, -- vibratoAmount,
+                0.8, -- noise,
+                -- 8  -- noiseFrequencyDivision
+                18  -- noiseFrequencyDivision
                 )
                 
-  player.gunhit:setVolume(0.1)
+  player.gunhit:setVolume(0.08)
 
   player.tunnelcrash = 
     sounds.make(180, -- duration
@@ -268,7 +269,7 @@ local function checkHits()
             v.flash = true
             if v.hitpoints > 0 then
               player.gunhit:stop()
-              player.gunhit:setPitch(1 + (math.random() - 0.5) * 1)
+              player.gunhit:setPitch((1 + (math.random() - 0.5) * 1) * 0.75)
               player.gunhit:play()
             else
               player.power = player.power + v.score
