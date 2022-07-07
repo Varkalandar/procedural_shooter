@@ -151,14 +151,14 @@ local function update(dt)
     -- now, draw
     
     love.graphics.setBlendMode("alpha")
-    love.graphics.setColor(red*0.6, green*0.3, blue*1.0, 1)
+    love.graphics.setColor(red*0.6, green*0.4, blue*0.9, 1)
 
     -- walls
     vline(xm, 0, top-1)
     vline(xm, bottom+1, tunnel.height-bottom)
     
     -- border
-    love.graphics.setColor(red*0.9, green*0.45, blue*1.5, 0.5)
+    love.graphics.setColor(red*0.9, green*0.6, blue*1.35, 0.5)
     vline(xm, top-3, 4)
     vline(xm, bottom, 3)
 
