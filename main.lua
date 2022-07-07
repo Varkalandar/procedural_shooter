@@ -173,13 +173,18 @@ end
 
 
 -- for the "wait for any key"
+-- except for game wide hotkeys
 function love.keypressed(key, scancode, isrepeat)
-  anyKey = true
+  if key == "m" then
+    music.channel:push("togglePause")
+  else
+    anyKey = true
+  end
 end
 
 
 function love.quit()
-  love.thread.getChannel("control"):push("stop")
+  music.channel:push("stop")
 end
 
 

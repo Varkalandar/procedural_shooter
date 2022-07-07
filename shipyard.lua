@@ -438,7 +438,7 @@ local function load(width, height)
   shipyard.hitpoints = {}
   
   for i=0,63 do	
-    print("Making ship data #" .. i+1)
+    -- print("Making ship data #" .. i+1)
 
     -- ship canvas is ship (first frame) then 10 explosion frames
     local canvas = love.graphics.newCanvas(12*256, 256)
