@@ -54,7 +54,7 @@ function love.load()
     print("Window setup failed")
   end
   
-  love.window.setTitle("Harmonic Shooter Alpha v0.06")
+  love.window.setTitle("Harmonic Shooter Alpha v0.07")
   
   player.load(width, height, swarm)
   local id = player.canvas:newImageData(0, 1, 32, 32, 64, 64)

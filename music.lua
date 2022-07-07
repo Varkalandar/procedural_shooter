@@ -15,6 +15,7 @@ local sounds = require("sounds")
 -- global music volume
 local amp = 0.3
 
+-- set up the instruments
 local snare =  
     sounds.make(180, -- duration
                 sounds.pluckEnvelope, 
@@ -102,6 +103,7 @@ local nextBeat = love.timer.getTime() + 1
 local beats = 0
 local pause = false
 
+-- make tones in harmonic intervals
 local function synthPitch()
   local interval = math.floor(love.math.random() * 8)
   local pitch = 1
@@ -126,6 +128,7 @@ local function synthPitch()
 end
 
 
+-- the lead synth occasionally gets played in a choord
 local function playRandomSynthChord()
   local pitch = synthPitch()
   synth:stop()
@@ -141,6 +144,10 @@ local function playRandomSynthChord()
 end
 
 
+-- split the beats in groups of 8
+-- play ryhthm (bass and snare) slightly random
+-- play high synth very random
+-- play lead synth moderately random
 local function playRandomMusic()
   local beat = beats % 8
   
