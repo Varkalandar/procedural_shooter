@@ -10,6 +10,7 @@ require("painter")
 
 local stars = require("stars")
 local tunnel = require("tunnel")
+-- local tunnel = require("land")
 local shipyard = require("shipyard")
 local swarm = require("swarm")
 local player = require("player")
@@ -40,7 +41,7 @@ local function newGame()
 
   -- roll in the tunnel
   stars.update(50)  
-  tunnel.update(25)  
+  tunnel.update(50)  
 end
 
 
