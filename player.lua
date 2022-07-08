@@ -164,6 +164,8 @@ end
 local function load(width, height, swarm, tunnel)
   player.x = 100
   player.y = height/2
+  player.dx = 0
+  player.dy = 0
   player.widht = width
   player.height = height
   player.canvas = love.graphics.newCanvas(128, 128)
@@ -304,18 +306,18 @@ local function fire()
   player.gunsound:stop()
   player.gunsound:play()
 
-  player.tracer:add(player.x + 28, player.y, 5, 0)
+  player.tracer:add(player.x + 28, player.y, 5 + player.dx, 0 + player.dy)
   
   if player.upperCannon then
-    player.tracer:add(player.x + 26, player.y-2, 5, -1.5)
+    player.tracer:add(player.x + 26, player.y-2, 5 + player.dx, -1.5 + player.dy)
   end
   
   if player.lowerCannon then
-    player.tracer:add(player.x + 26, player.y+2, 5, 1.5)
+    player.tracer:add(player.x + 26, player.y+2, 5 + player.dx, 1.5 + player.dy)
   end
   
   if player.backCannon then
-    player.tracer:add(player.x - 24, player.y, -5, 0)
+    player.tracer:add(player.x - 24, player.y, -5 + player.dx, 0 + player.dy)
   end
 end
 
@@ -343,6 +345,8 @@ local function update(dt)
 
   player.x = player.x + vx*speed
   player.y = player.y + vy*speed
+  player.dx = vx
+  player.dy = vy
   player.time = player.time + dt
   
   player.x = math.max(64, (math.min(player.x, player.tracer.width - 64)))
