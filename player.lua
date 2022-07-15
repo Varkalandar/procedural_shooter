@@ -171,6 +171,7 @@ local function load(width, height, swarm, tunnel)
   player.canvas = love.graphics.newCanvas(128, 128)
   player.bonusCanvas = love.graphics.newCanvas(16*5, 16)
   player.bonusQuad = love.graphics.newQuad(0, 0, 16, 16, player.bonusCanvas)
+  player.timeBonusBase = 0
   player.time = 0
   player.power = 100
   player.maxPower = 200
@@ -278,8 +279,9 @@ local function checkHits()
               player.score = player.score + v.score * 10
               
               -- chance for bonus
-              if love.math.random() < 0.005 + v.score * 0.003 then
+              if love.math.random() < player.timeBonusBase + v.score * 0.0018 then
                 makeBonus(v)
+                player.timeBonusBase = 0
               end
             end
           end
@@ -348,6 +350,7 @@ local function update(dt)
   player.dx = vx
   player.dy = vy
   player.time = player.time + dt
+  player.timeBonusBase = player.timeBonusBase + dt * 0.0012
   
   player.x = math.max(64, (math.min(player.x, player.tracer.width - 64)))
   player.y = math.max(64, (math.min(player.y, player.tracer.height - 64)))
@@ -392,7 +395,6 @@ local function drawShieldStatus(x, y)
   love.graphics.print("Shield:", x, y) 
   love.graphics.print(player.maxPower, x+200, y) 
   love.graphics.rectangle('line', x+80, y, 102, 18)
-  
 end
 
 

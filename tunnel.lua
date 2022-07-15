@@ -5,12 +5,9 @@
 -- Date: 2022/06/14
 --
 
+local colorGradient = require("color_gradient")
+
 local tunnel = {}
-
-
-local function colorGradient()
-  return love.math.random() * 0.0006 - 0.0003
-end
 
 
 local function wallGradient()
@@ -46,14 +43,13 @@ local function load(width, height)
 
   -- color vector stuff
 
-  tunnel.red = 0.20
-  tunnel.green = 0.20 
-  tunnel.blue = 0.20
-
-  tunnel.rv = colorGradient()
-  tunnel.gv = colorGradient()
-  tunnel.bv = colorGradient()
-
+  tunnel.gradient = 
+    colorGradient.make({r=0.1, g=0.1, b=0.1},  -- velocity of change
+                       {r=0.2, g=0.2, b=0.2},  -- starting color
+                       {r=0.15, g=0.15, b=0.15},  -- min allowed values           
+                       {r=0.25, g=0.25, b=0.25}  -- max allowed values
+                       )
+  
   -- wall vector stuff
 
   tunnel.top = 70 
@@ -75,25 +71,13 @@ local function update(dt)
   tunnel.depth = tunnel.depth + vd
   local r2 = math.floor(tunnel.right)
 
+  
   love.graphics.setCanvas(tunnel.canvas)  
   
   for x=r1, r2-1 do
-
     local xm = x % (2*tunnel.width)
-    
-    -- random color vector changes
-    if love.math.random() < 0.002 then
-      tunnel.rv = colorGradient()
-    end
-    
-    if love.math.random() < 0.002 then
-      tunnel.gv = colorGradient()
-    end
-    
-    if love.math.random() < 0.002 then
-      tunnel.bv = colorGradient()
-    end
 
+    tunnel.gradient:update(0.002)
 
     -- wall changes
     if love.math.random() < 0.25 then
@@ -103,7 +87,6 @@ local function update(dt)
     if love.math.random() < 0.25 then
       tunnel.bottomv = wallGradient()
     end
-    
     
     -- wall vectors, check bounds    
     local top = tunnel.top + tunnel.topv
@@ -127,38 +110,19 @@ local function update(dt)
       tunnel.bottomv = -tunnel.bottomv
       bottom = bottom + 1
     end
-    
-    -- color vectors, check out of bounds stuff    
-    local red = tunnel.red + tunnel.rv
-    while red < 0.15 or red > 0.25 do
-      tunnel.rv = colorGradient()
-      red = tunnel.red + tunnel.rv
-    end
-    
-    local green = tunnel.green + tunnel.gv
-    while green < 0.15 or green > 0.25 do
-      tunnel.gv = colorGradient()
-      green = tunnel.green + tunnel.gv
-    end
-    
-    local blue = tunnel.blue + tunnel.bv
-    while blue < 0.15 or blue > 0.25 do
-      tunnel.bv = colorGradient()
-      blue = tunnel.blue + tunnel.bv
-    end
-      
       
     -- now, draw
+    local color = tunnel.gradient.color
     
     love.graphics.setBlendMode("alpha")
-    love.graphics.setColor(red*0.6, green*0.4, blue*0.9, 1)
+    love.graphics.setColor(color.r*0.6, color.g*0.4, color.b*0.9, 1)
 
     -- walls
     vline(xm, 0, top-1)
     vline(xm, bottom+1, tunnel.height-bottom)
     
     -- border
-    love.graphics.setColor(red*0.9, green*0.6, blue*1.35, 0.5)
+    love.graphics.setColor(color.r*0.9, color.r*0.6, color.b*1.35, 0.5)
     vline(xm, top-3, 4)
     vline(xm, bottom, 3)
 
@@ -166,10 +130,6 @@ local function update(dt)
     love.graphics.setBlendMode("replace")
     love.graphics.setColor(0, 0, 0, 0)
     vline(xm, top, bottom-top-1)
-    
-    tunnel.red = red
-    tunnel.green = green
-    tunnel.blue = blue
     
     tunnel.top = top
     tunnel.bottom = bottom

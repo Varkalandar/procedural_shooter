@@ -9,8 +9,8 @@
 require("painter")
 
 local stars = require("stars")
-local tunnel = require("tunnel")
--- local tunnel = require("land")
+-- local tunnel = require("tunnel")
+local tunnel = require("land")
 local shipyard = require("shipyard")
 local swarm = require("swarm")
 local player = require("player")
@@ -55,7 +55,7 @@ function love.load()
     print("Window setup failed")
   end
   
-  love.window.setTitle("Harmonic Shooter Alpha v0.07")
+  love.window.setTitle("Harmonic Shooter Alpha v0.08")
   
   player.load(width, height, swarm)
   local id = player.canvas:newImageData(0, 1, 32, 32, 64, 64)
