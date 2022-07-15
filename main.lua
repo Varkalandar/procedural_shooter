@@ -9,8 +9,8 @@
 require("painter")
 
 local stars = require("stars")
--- local tunnel = require("tunnel")
-local tunnel = require("land")
+-- local tunnel = require("levels/tunnel")
+local tunnel = require("levels/platform")
 local shipyard = require("shipyard")
 local swarm = require("swarm")
 local player = require("player")
