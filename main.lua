@@ -9,8 +9,8 @@
 require("painter")
 
 local stars = require("stars")
--- local tunnel = require("levels/tunnel")
-local tunnel = require("levels/platform")
+local tunnel = require("levels/tunnel")
+local platform = require("levels/platform")
 local shipyard = require("shipyard")
 local swarm = require("swarm")
 local player = require("player")
@@ -34,14 +34,14 @@ local function newGame()
   state = 1
 
   stars.load(width, height)
-  tunnel.load(width, height)
+  levelBg.load(width, height)
   swarm.load(width, height, player)
   shipyard.load()
-  player.load(width, height, swarm, tunnel)
+  player.load(width, height, swarm, levelBg)
 
-  -- roll in the tunnel
+  -- roll in the levelBg
   stars.update(50)  
-  tunnel.update(50)  
+  levelBg.update(50)  
 end
 
 
@@ -61,9 +61,12 @@ function love.load()
   local id = player.canvas:newImageData(0, 1, 32, 32, 64, 64)
   love.window.setIcon(id)
 
+  platform.load(width, height)
+  
+  levelBg = tunnel
   newGame()
   state = 0
-    
+  
   music.channel = love.thread.getChannel("control")
   music.thread = love.thread.newThread("music.lua")
   music.thread:start()
@@ -73,7 +76,7 @@ end
 local function updateGame(dt)
   time = time + dt 
   stars.update(dt)
-  tunnel.update(dt)
+  levelBg.update(dt)
   shipyard.update(dt)
   swarm.update(dt)
   player.update(dt)
@@ -99,7 +102,7 @@ end
 function love.update(dt)
   if state == 0 then
     stars.update(dt*0.5)
-    tunnel.update(dt*0.5)
+    levelBg.update(dt*0.5)
     if anyKey then
       newGame()
     end
@@ -120,7 +123,7 @@ end
 
 local function drawTitle()
   stars.draw()
-  tunnel.draw()
+  levelBg.draw()
   
   love.graphics.setColor(1, 0.5, 0, 1)
   love.graphics.setFont(fonts.giant)
@@ -129,13 +132,15 @@ local function drawTitle()
 
   love.graphics.setColor(0.5, 1, 0, 1)
   love.graphics.setFont(fonts.normal)
-  love.graphics.print("Press any key to start", 400, 420)
+  -- love.graphics.print("Press any key to start", 400, 420)
+  love.graphics.print("Press 1 to enter the asteroid tunnel", 360, 416)
+  love.graphics.print("Press 2 to raid the space platform", 360, 444)
 end
 
 
 local function drawGame()
   stars.draw()
-  tunnel.draw()
+  levelBg.draw()
   swarm.draw()
   player.draw()
 end
@@ -143,7 +148,7 @@ end
 
 local function drawGameOver()
   stars.draw()
-  tunnel.draw()
+  levelBg.draw()
   swarm.draw()
   player.draw()
   
@@ -178,6 +183,12 @@ end
 function love.keypressed(key, scancode, isrepeat)
   if key == "m" then
     music.channel:push("togglePause")
+  elseif key == "1" then
+    levelBg = tunnel
+    anyKey = true
+  elseif key == "2" then
+    levelBg = platform
+    anyKey = true
   else
     anyKey = true
   end

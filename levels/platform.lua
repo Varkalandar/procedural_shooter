@@ -101,6 +101,7 @@ end
 
 
 local function load(width, height)
+  print("Initializing space platform level background")
 
   land.width = width
   land.height = height

@@ -16,6 +16,7 @@ end
 
 
 local function load(width, height)
+  print("Initializing tunnel level background")
 
   tunnel.width = width
   tunnel.height = height
